@@ -1,0 +1,11 @@
+services:
+  aggregator:
+    build: .
+    image: uts-aggregator-11231036:latest   # <--- tambahkan ini
+    container_name: uts_aggregator_11231036
+    ports:
+      - "8080:8080"
+    environment:
+      - AGG_DB_PATH=/data/agg.db
+    volumes:
+      - ./.data:/data
