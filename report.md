@@ -66,3 +66,10 @@ Van Steen, M., & Tanenbaum, A. S. (2023). Distributed systems: Principles and pa
 
 `DEMONSTRASI`
 https://youtu.be/QbtCG-hsy_4
+
+`LAPORAN PDF`
+https://drive.google.com/file/d/1J6CJQHY2OKaLHCJtY0hiDZeEcKws9FSJ/view?usp=drive_link
+
+`MASTERLINK`
+https://docs.google.com/document/d/1wcFnYasFgLMfb0o8bXOUsfZgRc1uWpdwCAQkPpBOP_Y/edit?usp=sharing
+
