@@ -1,7 +1,9 @@
+version: "3.9"
+
 services:
   aggregator:
     build: .
-    image: uts-aggregator-11231036:latest   # <--- tambahkan ini
+    image: uts-aggregator-11231036:latest
     container_name: uts_aggregator_11231036
     ports:
       - "8080:8080"
@@ -9,3 +11,64 @@ services:
       - AGG_DB_PATH=/data/agg.db
     volumes:
       - ./.data:/data
+    networks:
+      - uts_network
+
+  publisher:
+    image: python:3.11-slim
+    container_name: uts_publisher_11231036
+    depends_on:
+      - aggregator
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        pip install httpx && python - <<'PY'
+        import asyncio, httpx, random, string, time
+
+        async def main():
+            print("📦 Publisher started, waiting for aggregator to be ready...")
+            await asyncio.sleep(5)  # beri waktu aggregator boot
+
+            async with httpx.AsyncClient() as c:
+                # Ambil statistik awal aggregator
+                try:
+                    res = await c.get("http://aggregator:8080/stats")
+                    base_stats = res.json()
+                    print("Current stats:", base_stats)
+                except Exception as e:
+                    print("Aggregator not ready:", e)
+                    base_stats = {}
+
+                # Buat event baru dengan sebagian duplikat
+                evts = []
+                for i in range(50):
+                    if i % 5 == 0:
+                        eid = f"demo-{i//5}"  # duplikat sebagian
+                    else:
+                        eid = "new-" + ''.join(random.choices(string.ascii_lowercase, k=5))
+                    evts.append({
+                        "topic": random.choice(["orders", "azka", "OLAHRAGA"]),
+                        "event_id": eid,
+                        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                        "source": "publisher_11231036",
+                        "payload": {"index": i}
+                    })
+
+                # Kirim batch event ke aggregator
+                print("🚀 Sending", len(evts), "events to aggregator...")
+                r = await c.post("http://aggregator:8080/publish", json={"events": evts})
+                print("POST", r.status_code)
+
+                # Tampilkan hasil /stats terbaru
+                s = await c.get("http://aggregator:8080/stats")
+                print("✅ UPDATED STATS:", s.text)
+
+        asyncio.run(main())
+        PY
+    networks:
+      - uts_network
+
+networks:
+  uts_network:
+    driver: bridge

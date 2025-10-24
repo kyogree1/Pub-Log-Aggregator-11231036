@@ -2,21 +2,13 @@
   "events": [
     {
       "topic": "OLAHRAGA",
-      "event_id": "bola-1",
+      "event_id": "bASKET",
       "timestamp": "2025-10-21T10:00:00Z",
       "source": "manual",
       "payload": {
         "deskripsi": "Tes kirim event pertama"
       }
-    },
-    {
-      "topic": "OLAHRAGA",
-      "event_id": "bola-2",
-      "timestamp": "2025-10-21T10:05:00Z",
-      "source": "manual",
-      "payload": {
-        "deskripsi": "Tes kirim event kedua"
-      }
     }
   ]
 }
+

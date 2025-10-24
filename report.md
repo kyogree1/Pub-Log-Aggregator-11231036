@@ -43,6 +43,26 @@ Jawaban:
 Evaluasi sistem terdistribusi melibatkan metrik seperti throughput (events/s), latency (ms/event), dan duplicate rate (%) (Van Steen & Tanenbaum, 2023, hlm. 208–213; 536–541). Throughput menunjukkan kapasitas paralel sistem, latency merepresentasikan efisiensi komunikasi, sementara duplicate rate mengukur efektivitas deduplication.
 Tambahan metrik seperti durability dan recovery time menilai ketahanan terhadap kegagalan. Peningkatan throughput sering menaikkan latency atau tingkat duplikasi. Oleh karena itu, desain optimal menggunakan asynchronous I/O, batch acknowledgment, dan bounded retry untuk menyeimbangkan performa, reliabilitas, dan konsistensi sesuai prinsip scalable fault-tolerant distributed systems.
 
+**Keputusan Desain Utama**
+
+`Idempotency: Setiap event memiliki (topic, event_id) unik yang disimpan di dedup store (SQLite).`
+`Dedup Store: Menggunakan tabel persisten dedup(topic, event_id, processed_at) agar data tidak hilang saat restart.`
+`Ordering: Menggunakan timestamp ISO 8601 sebagai urutan aproksimasi antar event.`
+`Retry Mechanism: Publisher dapat mengirim ulang event (at-least-once), tetapi aggregator menolak duplikat.`
+`Persistence: Volume Docker .data menjamin database tetap tersimpan di host.`
+
+**RINGKASAN ARSITEKTUR**
+Publisher  →  [POST /publish]  →  Aggregator (FastAPI)
+                         │
+                         ↓
+                   Dedup Store (SQLite)
+                         │
+                         ↓
+              [GET /events] / [GET /stats]
+
 
 `DAFTAR PUSTAKA`
 Van Steen, M., & Tanenbaum, A. S. (2023). Distributed systems: Principles and paradigms (4th ed.). Vrije Universiteit Amsterdam.
+
+`DEMONSTRASI`
+https://youtu.be/QbtCG-hsy_4
